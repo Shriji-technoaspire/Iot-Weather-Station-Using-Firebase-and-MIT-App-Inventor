@@ -1,0 +1,27 @@
+#define FIREBASE_HOST "Paste URL here"  // Enter the Firebase Database URL Without Https and backslash 
+Other than that we need internet connectivity, for which we have to enter our Wi-Fi SSID and Password in definitions.
+#define WIFI_SSID "Enter your WiFI SSID"   // Change the name of your WIFI
+#define WIFI_PASSWORD "WIFI PASSWORD"      // Change the password of your WIFI 
+rest of the code is very simple and self-explanatory, where in we are basically pushing all the data from sensor on Real-time Database of firebase.
+void loop()
+{
+float h = dht.readHumidity();
+float t = dht.readTemperature();         // Reading temperature as Celsius (the default)
+int r = digitalRead(4);                  // Reading the Rain Sensor Data
+
+Firebase.setFloat ("Temperature",t);
+Serial.println(t);
+Firebase.setFloat ("Humidity",h);
+Serial.println(h);
+if (r == 1)
+{
+Firebase.setString("Rain", "Yeah");
+Serial.println("its raining");
+}
+else
+{
+Firebase.setString("Rain", "Nah");
+Serial.println("no rains today");
+}
+delay(200);
+} 
