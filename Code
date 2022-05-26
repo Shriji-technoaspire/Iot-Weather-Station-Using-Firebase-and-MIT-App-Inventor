@@ -1,27 +1,47 @@
-#define FIREBASE_HOST "Paste URL here"  // Enter the Firebase Database URL Without Https and backslash 
-Other than that we need internet connectivity, for which we have to enter our Wi-Fi SSID and Password in definitions.
-#define WIFI_SSID "Enter your WiFI SSID"   // Change the name of your WIFI
-#define WIFI_PASSWORD "WIFI PASSWORD"      // Change the password of your WIFI 
-rest of the code is very simple and self-explanatory, where in we are basically pushing all the data from sensor on Real-time Database of firebase.
-void loop()
+#include <dht.h>
+#include "DHT.h"
+#include  <ESP8266WiFi.h>
+#define FIREBASE_HOST "%%%%%%%%%########"                    // Enter the Firebase Database URL Without Https and backslash
+#define WIFI_SSID "Enter your WiFI SSID"                     // Change the name of your WIFI
+#define WIFI_PASSWORD "WIFI PASSWORD"                        // Change the password of your WIFI
+#define DHTPIN 14                                            // Data Pin of DHT 11 , for NodeMCU D5 GPIO no. is 14
+#define DHTTYPE DHT11                                        // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+void setup() 
 {
-float h = dht.readHumidity();
-float t = dht.readTemperature();         // Reading temperature as Celsius (the default)
-int r = digitalRead(4);                  // Reading the Rain Sensor Data
+ Serial.begin(9600);
+ WiFi.begin (WIFI_SSID, WIFI_PASSWORD);
+ while (WiFi.status() != WL_CONNECTED) 
+  {
+   delay(500);
+   Serial.print(".");
+  }
+ dht.begin();
+ pinMode(4,INPUT);                                            // Data Pin of Rain Sensor , for NodeMCU D2 GPIO no. is 4
+ Serial.println ("");
+ Serial.println ("WiFi Connected!");
+ Firebase.begin(FIREBASE_HOST);
+}
 
-Firebase.setFloat ("Temperature",t);
-Serial.println(t);
-Firebase.setFloat ("Humidity",h);
-Serial.println(h);
-if (r == 1)
+void loop() 
 {
-Firebase.setString("Rain", "Yeah");
-Serial.println("its raining");
+ float h = dht.readHumidity();
+ float t = dht.readTemperature();         // Reading temperature as Celsius (the default)
+ int r = digitalRead(4);                  // Reading the Rain Sensor Data
+  
+ Firebase.setFloat ("Temperature",t);
+ Serial.println(t);
+ Firebase.setFloat ("Humidity",h);
+ Serial.println(h);
+ if (r == 1)
+  {
+   Firebase.setString("Rain", "Yeah");
+   Serial.println("its raining");
+  }
+   else 
+  {
+   Firebase.setString("Rain", "Nah");
+   Serial.println("no rains today");
+  }
+ delay(200);
 }
-else
-{
-Firebase.setString("Rain", "Nah");
-Serial.println("no rains today");
-}
-delay(200);
-} 
